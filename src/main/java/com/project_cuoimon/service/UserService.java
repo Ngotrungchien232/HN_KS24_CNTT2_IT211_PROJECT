@@ -25,4 +25,11 @@ public interface UserService {
 
     // Lấy danh sách người dùng phân trang dùng JPQL Constructor Projection (Admin/Staff)
     Page<UserResponseDto> getAllUsers(Pageable pageable);
+
+    // Thêm phương thức Update và Delete để hoàn thiện CRUD
+    User updateUserStatus(Long userId, Boolean isActive);
+    void deleteUser(Long userId);
+
+    // Quên mật khẩu (FR-10)
+    String forgotPassword(com.project_cuoimon.dto.ForgotPasswordRequest request);
 }

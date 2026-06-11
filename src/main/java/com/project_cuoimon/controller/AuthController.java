@@ -166,4 +166,17 @@ public class AuthController {
                 .build();
         return ResponseEntity.ok(response);
     }
+
+    // 5. API Quên mật khẩu - Cấp mật khẩu tạm thời (FR-10 / Public)
+    @PostMapping("/forgot-password")
+    public ResponseEntity<ApiResponse<String>> forgotPassword(@Valid @RequestBody ForgotPasswordRequest request) {
+        String tempPassword = userService.forgotPassword(request);
+
+        ApiResponse<String> response = ApiResponse.<String>builder()
+                .success(true)
+                .message("Khôi phục mật khẩu thành công! Mật khẩu tạm thời mới của bạn là: " + tempPassword)
+                .data(tempPassword)
+                .build();
+        return ResponseEntity.ok(response);
+    }
 }

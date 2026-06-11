@@ -34,6 +34,9 @@ public class UserServiceImpl implements UserService {
     private AccountRepository accountRepository;
 
     @Autowired
+    private RefreshTokenRepository refreshTokenRepository;
+
+    @Autowired
     private com.project_cuoimon.service.CloudinaryService cloudinaryService;
 
     @Autowired
@@ -168,5 +171,49 @@ public class UserServiceImpl implements UserService {
             accountNumber = String.valueOf(number);
         } while (accountRepository.existsByAccountNumber(accountNumber));
         return accountNumber;
+    }
+
+    @Override
+    @Transactional
+    public User updateUserStatus(Long userId, Boolean isActive) {
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new RuntimeException("Không tìm thấy người dùng có ID: " + userId));
+
+        user.setIsActive(isActive);
+        return userRepository.save(user);
+    }
+
+    @Override
+    @Transactional
+    public void deleteUser(Long userId) {
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new RuntimeException("Không tìm thấy người dùng có ID: " + userId));
+
+        // Xóa các thực thể liên quan trước để tránh lỗi khóa ngoại (Foreign Key Constraints)
+        refreshTokenRepository.deleteByUser(user);
+        kycProfileRepository.findByUser(user).ifPresent(kycProfileRepository::delete);
+        accountRepository.findByUser(user).ifPresent(accountRepository::delete);
+
+        userRepository.delete(user);
+    }
+
+    @Override
+    @Transactional
+    public String forgotPassword(com.project_cuoimon.dto.ForgotPasswordRequest request) {
+        // 1. Tìm kiếm User theo username
+        User user = userRepository.findByUsername(request.getUsername())
+                .orElseThrow(() -> new RuntimeException("Tên đăng nhập không tồn tại trên hệ thống!"));
+
+        // 2. Kiểm tra xem email có khớp không
+        if (!user.getEmail().equalsIgnoreCase(request.getEmail())) {
+            throw new RuntimeException("Email không trùng khớp với thông tin đã đăng ký!");
+        }
+
+        // 3. Tạo mật khẩu tạm thời đơn giản dễ nhớ theo yêu cầu của học viên (ví dụ: "Rikkei@123")
+        String tempPassword = "Rikkei@123";
+        user.setPassword(passwordEncoder.encode(tempPassword)); // Mã hóa BCrypt mật khẩu mới
+        userRepository.save(user);
+
+        return tempPassword;
     }
 }

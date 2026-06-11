@@ -93,4 +93,36 @@ public class UserController {
                 .build();
         return ResponseEntity.ok(response);
     }
+
+    // 4. API Khóa / Mở khóa tài khoản (Update - Role STAFF hoặc ADMIN)
+    @PreAuthorize("hasRole('ADMIN') or hasRole('STAFF')")
+    @PutMapping("/users/{id}/status")
+    public ResponseEntity<ApiResponse<User>> updateUserStatus(
+            @PathVariable("id") Long userId,
+            @RequestParam("isActive") Boolean isActive) {
+
+        User updatedUser = userService.updateUserStatus(userId, isActive);
+        String msg = isActive ? "Đã kích hoạt/Mở khóa tài khoản người dùng!" : "Đã khóa tài khoản người dùng!";
+
+        ApiResponse<User> response = ApiResponse.<User>builder()
+                .success(true)
+                .message(msg)
+                .data(updatedUser)
+                .build();
+        return ResponseEntity.ok(response);
+    }
+
+    // 5. API Xóa tài khoản người dùng (Delete - Chỉ duy nhất Role ADMIN)
+    @PreAuthorize("hasRole('ADMIN')")
+    @DeleteMapping("/users/{id}")
+    public ResponseEntity<ApiResponse<String>> deleteUser(@PathVariable("id") Long userId) {
+        userService.deleteUser(userId);
+
+        ApiResponse<String> response = ApiResponse.<String>builder()
+                .success(true)
+                .message("Đã xóa tài khoản người dùng khỏi hệ thống!")
+                .data("Xóa thành công!")
+                .build();
+        return ResponseEntity.ok(response);
+    }
 }
