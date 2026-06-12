@@ -20,14 +20,17 @@ public class UserDetailsImpl implements UserDetails {
     @JsonIgnore
     private String password;
 
+    private Boolean isActive; // Sử dụng lớp wrapper Boolean thay vì kiểu nguyên thủy để tránh lỗi model binding khi test MockMvc
+
     private Collection<? extends GrantedAuthority> authorities;
 
-    public UserDetailsImpl(Long id, String username, String email, String password,
+    public UserDetailsImpl(Long id, String username, String email, String password, Boolean isActive,
                            Collection<? extends GrantedAuthority> authorities) {
         this.id = id;
         this.username = username;
         this.email = email;
         this.password = password;
+        this.isActive = isActive;
         this.authorities = authorities;
     }
 
@@ -48,6 +51,7 @@ public class UserDetailsImpl implements UserDetails {
                 user.getUsername(),
                 user.getEmail(),
                 user.getPassword(),
+                user.getIsActive(), // Inject trạng thái isActive thực tế từ CSDL
                 Collections.singletonList(authority)
         );
     }
@@ -93,7 +97,7 @@ public class UserDetailsImpl implements UserDetails {
     @Override
     public boolean isEnabled() {
         // Chỉ cho phép đăng nhập nếu tài khoản đang kích hoạt (isActive = true)
-        return true;
+        return isActive != null && isActive;
     }
 
     @Override

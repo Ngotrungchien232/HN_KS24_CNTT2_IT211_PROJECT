@@ -52,7 +52,7 @@ public class SecurityConfig {
         return authConfig.getAuthenticationManager();
     }
 
-    // 4. Định nghĩa thuật toán mã hóa mật khẩu BCrypt với độ mạnh 10 (đáp ứng yêu cầu NFR-02)
+    // 4. Định nghĩa thuật toán mã hóa mật khẩu BCrypt với độ mạnh 10 (Đáp ứng yêu cầu NFR-02)
     @Bean
     public PasswordEncoder passwordEncoder() {
         return new BCryptPasswordEncoder(10);
@@ -65,11 +65,11 @@ public class SecurityConfig {
             .exceptionHandling(exception -> exception.authenticationEntryPoint(unauthorizedHandler)) // Gán bộ xử lý lỗi 401
             .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS)) // Thiết lập chế độ Stateless
             .authorizeHttpRequests(auth -> 
-                auth.requestMatchers("/api/auth/**").permitAll() // Các API xác thực (Đăng ký, Đăng nhập) được phép truy cập công khai
+                auth.requestMatchers("/api/auth/**", "/error").permitAll() // Các API xác thực và đường dẫn lỗi được phép truy cập công khai
                     .requestMatchers("/api/v1/admin/**").hasRole("ADMIN") // Chỉ ADMIN mới vào được
                     .requestMatchers("/api/v1/staff/**").hasRole("STAFF") // Chỉ STAFF mới vào được
                     .requestMatchers("/api/v1/customer/**").hasRole("CUSTOMER") // Chỉ CUSTOMER mới vào được
-                    .anyRequest().permitAll() // Tất cả các đường dẫn khác (ngoài 3 đường dẫn trên) được truy cập công khai
+                    .anyRequest().authenticated() // Tất cả các yêu cầu khác đều phải xác thực (đóng lỗ hổng anyRequest().permitAll())
             );
 
         // Đặt AuthenticationProvider đã cấu hình vào hệ thống

@@ -57,3 +57,8 @@ dependencies {
 tasks.named('test') {
     useJUnitPlatform()
 }
+
+// Bắt buộc trình biên dịch Java sử dụng bảng mã UTF-8 khi build dự án (tránh lỗi phông chữ / chữ tiếng Việt bị biến dạng)
+tasks.withType(JavaCompile) {
+    options.encoding = 'UTF-8'
+}

@@ -210,7 +210,7 @@ public class UserServiceImpl implements UserService {
         }
 
         // 3. Tạo mật khẩu tạm thời đơn giản dễ nhớ theo yêu cầu của học viên (ví dụ: "Rikkei@123")
-        String tempPassword = "Rikkei@123";
+        String tempPassword = java.util.UUID.randomUUID().toString().substring(0, 8);
         user.setPassword(passwordEncoder.encode(tempPassword)); // Mã hóa BCrypt mật khẩu mới
         userRepository.save(user);
 

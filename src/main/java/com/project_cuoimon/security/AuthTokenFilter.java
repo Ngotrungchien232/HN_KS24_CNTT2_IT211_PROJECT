@@ -36,10 +36,20 @@ public class AuthTokenFilter extends OncePerRequestFilter {
             String jwt = parseJwt(request);
             if (jwt != null && jwtUtils.validateJwtToken(jwt)) {
 
-                // KIỂM TRA BLACKLIST: Nếu AccessToken này đã bị Logout, chặn ngay lập tức
+                // KIỂM TRA BLACKLIST: Nếu AccessToken này đã bị Logout, chặn ngay lập tức và trả về 401
                 if (tokenBlackListRepository.existsByAccessToken(jwt)) {
                     logger.warn("Token đã nằm trong Blacklist (đã logout): {}", jwt);
-                    filterChain.doFilter(request, response);
+                    response.setContentType("application/json");
+                    response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+                    
+                    java.util.Map<String, Object> body = new java.util.HashMap<>();
+                    body.put("timestamp", java.time.LocalDateTime.now().format(java.time.format.DateTimeFormatter.ISO_LOCAL_DATE_TIME));
+                    body.put("status", HttpServletResponse.SC_UNAUTHORIZED);
+                    body.put("error", "Unauthorized");
+                    body.put("message", "Token này đã bị vô hiệu hóa (người dùng đã đăng xuất)!");
+                    body.put("path", request.getServletPath());
+                    
+                    new com.fasterxml.jackson.databind.ObjectMapper().writeValue(response.getOutputStream(), body);
                     return;
                 }
 
