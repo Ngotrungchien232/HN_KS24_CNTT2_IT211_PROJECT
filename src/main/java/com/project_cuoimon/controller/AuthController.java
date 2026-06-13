@@ -38,7 +38,7 @@ public class AuthController {
     private UserService userService;
 
     @Autowired
-    private JwtUtils jwtUtils;
+    private JwtUtils jwtUtils; // Utility để tạo và xác thực JWT 
 
     @Autowired
     private RefreshTokenRepository refreshTokenRepository;

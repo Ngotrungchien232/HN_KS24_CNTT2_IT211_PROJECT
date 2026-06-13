@@ -31,12 +31,12 @@ public class AccountController {
     @GetMapping("/balance")
     public ResponseEntity<ApiResponse<AccountResponse>> getBalance(
             @AuthenticationPrincipal UserDetailsImpl userDetails) {
-
+        // Lấy thông tin User từ UserDetailsImpl đã được load trong quá trình xác thực
         User user = userRepository.findById(userDetails.getId())
                 .orElseThrow(() -> new RuntimeException("Không tìm thấy thông tin khách hàng!"));
 
         AccountResponse accountResponse = accountService.getBalance(user);
-
+        // Đóng gói dữ liệu vào ApiResponse để trả về cho Client
         ApiResponse<AccountResponse> response = ApiResponse.<AccountResponse>builder()
                 .success(true)
                 .message("Vấn tin số dư tài khoản thành công!")
@@ -51,12 +51,12 @@ public class AccountController {
     public ResponseEntity<ApiResponse<Transaction>> transfer(
             @AuthenticationPrincipal UserDetailsImpl userDetails,
             @Valid @RequestBody TransferRequest request) {
-
+        // Lấy thông tin User từ UserDetailsImpl đã được load trong quá trình xác thực
         User user = userRepository.findById(userDetails.getId())
                 .orElseThrow(() -> new RuntimeException("Không tìm thấy thông tin khách hàng!"));
 
         Transaction transaction = accountService.transfer(user, request);
-
+    // Đóng gói dữ liệu vào ApiResponse để trả về cho Client
         ApiResponse<Transaction> response = ApiResponse.<Transaction>builder()
                 .success(true)
                 .message("Giao dịch chuyển khoản thành công!")
